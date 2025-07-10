@@ -1,11 +1,25 @@
 from enum import StrEnum
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from freqgen.model import get_model
 
+
+origins = [
+    "http://localhost",
+    "http://localhost:1234",
+]
+
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.state.MODEL = get_model()
 

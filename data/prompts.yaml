@@ -9,7 +9,7 @@ questionnaire:
         station: fast
       - answer: "Une friche industrielle, avec un sound system brut 🏚️"
         station: faster
-  - question: "Ton tempo intérieur ce soir ?"
+  - question: "Quel est ton tempo intérieur ce soir ?"
     choices:
       - answer: "Smooth, envie de danser en discutant"
         station: slower
@@ -19,7 +19,7 @@ questionnaire:
         station: fast
       - answer: "Rapide, j’ai besoin que ça galope"
         station: faster
-  - question: "Quel lien tu cherches avec les gens ?"
+  - question: "Quel lien cherches-tu avec les gens ?"
     choices:
       - answer: "Danser ensemble, comme une jam session"
         station: slower
