@@ -6,18 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.115.14",
-    "floret>=0.10.5",
-    "fr-core-news-lg",
-    "fr-core-news-sm",
-    "pandas>=2.3.0",
-    "protobuf>=6.31.1",
     "pydantic-settings>=2.10.1",
     "pydantic-yaml>=1.5.1",
     "sentence-transformers>=5.0.0",
-    "spacy>=3.8.7",
-    "tiktoken>=0.9.0",
-    "torch>=2.7.1",
-    "transformers>=4.53.0",
 ]
 
 [dependency-groups]
@@ -26,7 +17,3 @@ dev = [
     "mypy>=1.16.1",
     "ruff>=0.12.2",
 ]
-
-[tool.uv.sources]
-fr-core-news-sm = { url = "https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.8.0/fr_core_news_sm-3.8.0-py3-none-any.whl" }
-fr-core-news-lg = { url = "https://github.com/explosion/spacy-models/releases/download/fr_core_news_lg-3.8.0/fr_core_news_lg-3.8.0-py3-none-any.whl" }
