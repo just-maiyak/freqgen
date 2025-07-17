@@ -17,7 +17,7 @@ settings = config.get_settings()
 class FreqGenModel:
     tag_embeddings: tuple[list[str], npt.NDArray[np.float32]] | None = None
     station_names_embeddings: (
-        dict[str, tuple[list[Station], npt.NDArray[np.float32]]] | None
+        dict[str, tuple[list[str], npt.NDArray[np.float32]]] | None
     ) = None
     questionnaire_embeddings: (
         dict[str, tuple[list[Station], npt.NDArray[np.float32]]] | None
