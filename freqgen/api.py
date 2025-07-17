@@ -10,6 +10,9 @@ from freqgen.model import get_model
 origins = [
     "http://localhost",
     "http://localhost:1234",
+    "https://just-maiyak.github.io",
+    "https://station-r.club",
+    "https://freqscan.yefimch.uk",
 ]
 
 app = FastAPI()
