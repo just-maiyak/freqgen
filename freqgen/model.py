@@ -202,38 +202,38 @@ class FreqGenModel:
 
     def get_best_playlist(self, station: Station) -> dict[str, str]:
         playlists = {
-            "deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
-            "spotify": "",
-            "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg?l=en",
+            "deezer": "https://link.deezer.com/s/30zcKNfVHeCY1kVap7koa",
+            "spotify": "https://open.spotify.com/playlist/2XiQ26aJA4eOkJAtVmfJzl",
+            "apple": "https://music.apple.com/fr/playlist/uk-garage-hard-house-stationr/pl.u-JPoNFWWZjNq",
             "youtube": "",
         }
         match station:
             case Station.slower:
                 playlists = {
-                    "deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
-                    "spotify": "",
-                    "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg?l=en",
+                    "deezer": "https://link.deezer.com/s/30zcMKTY2yWNartKHdNsz",
+                    "spotify": "https://open.spotify.com/playlist/7lQ1MWScSLk8AzB54qM9Bq",
+                    "apple": "https://music.apple.com/fr/playlist/baile-funk-disco-nu-house-stationr/pl.u-aZK7FVVMvpW",
                     "youtube": "",
                 }
             case Station.slow:
                 playlists = {
-                    "deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
-                    "spotify": "",
-                    "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg?l=en",
+                    "deezer": "https://link.deezer.com/s/30zcKNfVHeCY1kVap7koa",
+                    "spotify": "https://open.spotify.com/playlist/2XiQ26aJA4eOkJAtVmfJzl",
+                    "apple": "https://music.apple.com/fr/playlist/uk-garage-hard-house-stationr/pl.u-JPoNFWWZjNq",
                     "youtube": "",
                 }
             case Station.fast:
                 playlists = {
-                    "deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
-                    "spotify": "",
-                    "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg?l=en",
+                    "deezer": "https://link.deezer.com/s/30yHSUSoWLo9rwTU4qpQs",
+                    "spotify": "https://open.spotify.com/playlist/0L4xtzuxTmNMXFn0dDdu79",
+                    "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg",
                     "youtube": "",
                 }
             case Station.faster:
                 playlists = {
-                    "deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
-                    "spotify": "",
-                    "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg?l=en",
+                    "deezer": "https://link.deezer.com/s/30z33Wn4MDmCfW6Ab4GB3",
+                    "spotify": "https://open.spotify.com/playlist/17zBdBpK1PrHEsWhcTYluS",
+                    "apple": "https://music.apple.com/fr/playlist/raw-hard-techno/pl.u-11DBHZZEB6M",
                     "youtube": "",
                 }
         return playlists
