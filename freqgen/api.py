@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -60,8 +60,15 @@ class StationInformation(BaseModel):
 
 
 @app.post("/predict")
-def predict(prompt_answers: PromptAnswers, language: str = "fr") -> StationInformation:
+def predict(
+    request: Request, prompt_answers: PromptAnswers, language: str | None = None
+) -> StationInformation:
+    if not language:
+        # Use Accept-Language to localize result if no language has been requested
+        language = request.headers.get("Accept-Language", "en")[:2]
+
     model = app.state.MODELS[language]
+
     answers = {
         question.question_id: question.answer for question in prompt_answers.answers
     }
