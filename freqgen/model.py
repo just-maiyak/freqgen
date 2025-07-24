@@ -179,11 +179,12 @@ class FreqGenModel:
         return [user_input[first], user_input[second]]
 
     def generate_best_artists(self, station: Station, length: int = 3) -> list[str]:
+
         artists = ["DJ Mehdi", "Myd", "Sebastian"]
 
         match station:
             case Station.slower:
-                artists = ["Folamour", "Polo&Pan"]
+                artists = ["Folamour", "Polo&Pan", "Peggy Gou"]
             case Station.slow:
                 artists = [
                     "DJ Heartstrings",
@@ -197,7 +198,7 @@ class FreqGenModel:
             case Station.faster:
                 artists = ["Shlømo", "999999999", "Rebekah", "Clara Cuvé", "SPFDJ"]
 
-        return sample(artists, length)
+        return sample(artists, min(length, len(artists)))
 
     def get_best_playlist(self, station: Station) -> dict[str, str]:
         playlists = {
