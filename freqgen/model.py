@@ -239,10 +239,6 @@ class FreqGenModel:
         return playlists
 
 
-def coin_flip():
-    return choice((True, False))
-
-
 @lru_cache
 def get_model(language: str = "fr") -> FreqGenModel:
     return FreqGenModel(language)
