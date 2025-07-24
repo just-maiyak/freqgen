@@ -24,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.state.MODEL = get_model()
+app.state.MODELS = {lang: get_model(lang) for lang in ("fr", "en", "de")}
 
 
 class Frequency(StrEnum):
@@ -35,7 +35,7 @@ class Frequency(StrEnum):
 
 
 class Answer(BaseModel):
-    question: str
+    question_id: str
     answer: str
 
 
@@ -46,6 +46,8 @@ class PromptAnswers(BaseModel):
 class PlaylistLinks(BaseModel):
     deezer: str
     spotify: str
+    apple: str
+    youtube: str
 
 
 class StationInformation(BaseModel):
@@ -57,31 +59,18 @@ class StationInformation(BaseModel):
     playlist: PlaylistLinks
 
 
-test_station = StationInformation(
-    frequency=Frequency.slow,
-    name="Hard Speed Radio",
-    verbatims=["Me perdre dans la masse", "Il faut que je me dépense"],
-    tags=["Sombre", "Moite", "Soutenu"],
-    artists=["I Hate Models", "Clara Cuvé", "Rebekah"],
-    playlist=PlaylistLinks(
-        deezer="https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
-        spotify=""
-    ),
-)
-
-
 @app.post("/predict")
-def predict(prompt_answers: PromptAnswers) -> StationInformation:
-    model = app.state.MODEL
+def predict(prompt_answers: PromptAnswers, language: str = "fr") -> StationInformation:
+    model = app.state.MODELS[language]
     answers = {
-        question.question: question.answer for question in prompt_answers.answers
+        question.question_id: question.answer for question in prompt_answers.answers
     }
 
     return StationInformation(
-        frequency=model.compute_user_station(answers),
+        frequency=(best_station := model.compute_user_station(answers)),
         name=" ".join(model.generate_station_name(answers)),
         verbatims=model.get_best_verbatims(answers),
         tags=model.generate_best_tags(answers),
-        artists=model.generate_best_artists(answers),
-        playlist=PlaylistLinks(**model.get_best_playlist(answers)),
+        artists=model.generate_best_artists(best_station),
+        playlist=PlaylistLinks(**model.get_best_playlist(best_station)),
     )

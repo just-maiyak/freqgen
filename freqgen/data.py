@@ -26,21 +26,28 @@ class Question(BaseModel):
     choices: list[Choice]
 
 
-class Prompts(BaseModel):
-    questionnaire: list[Question]
+class Questionnaire(BaseModel):
+    place: Question
+    spirit: Question
+    outfit: Question
+    aesthetic: Question
+    fuel: Question
 
 
-def get_questionnaire() -> Prompts:
-    yaml = Path(settings.PROMPTS_PATH).read_text()
-    return parse_yaml_raw_as(Prompts, yaml)
+def get_questionnaire(language: str = "fr") -> Questionnaire:
+    yaml = Path(settings.PROMPTS_PATH / f"{language}.yaml").read_text()
+    return parse_yaml_raw_as(Questionnaire, yaml)
 
 
-def get_tags() -> set[str]:
-    return set(Path(settings.TAGS_PATH).read_text().split())
+def get_tags(language: str = "fr") -> set[str]:
+    return set(Path(settings.TAGS_PATH / f"{language}.yaml").read_text().split())
 
 
-def get_station_names() -> dict[str, set[str]]:
-    return {
-        "en": set((Path(settings.STATION_NAMES_PATH) / "en.yaml").read_text().split()),
-        "de": set((Path(settings.STATION_NAMES_PATH) / "de.yaml").read_text().split()),
-    }
+def get_station_names(language: str = "fr") -> set[str]:
+    return set(
+        (Path(settings.STATION_NAMES_PATH) / f"{language}.yaml").read_text().split()
+    )
+
+
+def get_radio_terms(language: str = "fr") -> set[str]:
+    return set((Path(settings.TERMS_PATH) / f"{language}.yaml").read_text().split())

@@ -9,16 +9,23 @@ import torch
 import sentence_transformers as st
 
 from freqgen import config
-from freqgen.data import get_questionnaire, get_tags, get_station_names, Station
+from freqgen.data import (
+    get_questionnaire,
+    get_tags,
+    get_station_names,
+    get_radio_terms,
+    Station,
+)
 
 settings = config.get_settings()
 
 
 class FreqGenModel:
+    language: str = "fr"
+
+    radio_terms: set[str] | None = None
     tag_embeddings: tuple[list[str], npt.NDArray[np.float32]] | None = None
-    station_names_embeddings: (
-        dict[str, tuple[list[str], npt.NDArray[np.float32]]] | None
-    ) = None
+    station_names_embeddings: tuple[list[str], npt.NDArray[np.float32]] | None = None
     questionnaire_embeddings: (
         dict[str, tuple[list[Station], npt.NDArray[np.float32]]] | None
     ) = None
@@ -26,7 +33,9 @@ class FreqGenModel:
     # Dunder
     # ======
 
-    def __init__(self):
+    def __init__(self, language: str = "fr"):
+        self.language = language
+        self.radio_terms = get_radio_terms(self.language)
         self.tag_embeddings = self.get_tag_embeddings()
         self.station_names_embeddings = self.get_station_name_embeddings()
         self.questionnaire_embeddings = self.get_questionnaire_embeddings()
@@ -61,67 +70,58 @@ class FreqGenModel:
         return st.SentenceTransformer(model_name, device=device)
 
     def get_tag_embeddings(self) -> tuple[list[str], npt.NDArray[np.float32]]:
-        model = self.get_model("fr")
-        tags = list(get_tags())
+        model = self.get_model(self.language)
+        tags = list(get_tags(self.language))
 
         return tags, model.encode(tags)
 
     def get_questionnaire_embeddings(
         self,
     ) -> dict[str, tuple[list[Station], npt.NDArray[np.float32]]]:
-        model = self.get_model("fr")
-        questionnaire = get_questionnaire().questionnaire
+        model = self.get_model(self.language)
+        questionnaire = get_questionnaire(self.language)
 
         return {
-            question.question: (
+            question_id: (
                 [choice.station for choice in question.choices],
                 model.encode([choice.answer for choice in question.choices]),
             )
-            for question in questionnaire
+            for question_id, question in questionnaire
         }
 
     def get_station_name_embeddings(
         self,
-    ) -> dict[str, tuple[list[str], npt.NDArray[np.float32]]]:
-        station_names = get_station_names()
-
-        return {
-            lang: (
-                ordered_names := list(names),
-                self.get_model(lang).encode(ordered_names),
-            )
-            for lang, names in station_names.items()
-        }
+    ) -> tuple[list[str], npt.NDArray[np.float32]]:
+        return (
+            ordered_names := list(get_station_names(self.language)),
+            self.get_model(self.language).encode(ordered_names),
+        )
 
     # Generation
     # ==========
 
     def generate_station_name(
-        self, answers: dict[str, str], length: int = 2
+        self, answers: dict[str, str], length: int = 1
     ) -> list[str]:
-        if self.station_names_embeddings is None:
+        if self.station_names_embeddings is None or self.radio_terms is None:
             raise ValueError("Model has not been initialized")
 
-        en_names, en_embeddings = self.station_names_embeddings["en"]
-        de_names, de_embeddings = self.station_names_embeddings["de"]
+        names, embeddings = self.station_names_embeddings
 
-        model = self.get_model("multi")
+        model = self.get_model(self.language)
 
         user_embeddings = model.encode(list(answers.values()))
 
-        en_similarity = model.similarity(user_embeddings, en_embeddings)
-        de_similarity = model.similarity(user_embeddings, de_embeddings)
+        similarity = model.similarity(user_embeddings, embeddings)
 
-        en_best_names_index = torch.argmax(en_similarity, dim=1)
-        de_best_names_index = torch.argmax(de_similarity, dim=1)
+        best_names_index = torch.argmax(similarity, dim=1)
 
-        en_best_names = [en_names[index] for index in en_best_names_index]
-        de_best_names = [de_names[index] for index in de_best_names_index]
+        best_names = [names[index] for index in best_names_index]
 
         return (
-            [*sample(en_best_names, length), "Frequency"]
-            if coin_flip()
-            else [*sample(de_best_names, length), "Radio"]
+            [choice(list(self.radio_terms)), *sample(best_names, length)]
+            if self.language == "fr"
+            else [*sample(best_names, length), choice(list(self.radio_terms))]
         )
 
     def get_best_station(
@@ -130,7 +130,7 @@ class FreqGenModel:
         choice_stations: list[Station],
         choice_embeddings: npt.NDArray[np.float32],
     ) -> Station:
-        model = self.get_model("fr")
+        model = self.get_model(self.language)
 
         answer_embedding = model.encode([answer])
         best_index = model.similarity(answer_embedding, choice_embeddings).argmax()
@@ -142,8 +142,8 @@ class FreqGenModel:
             raise ValueError("Model has not been initialized")
 
         best_stations = [
-            self.get_best_station(answer, *self.questionnaire_embeddings[question])
-            for question, answer in answers.items()
+            self.get_best_station(answer, *self.questionnaire_embeddings[question_id])
+            for question_id, answer in answers.items()
         ]
 
         [(best_station, _), *_] = Counter(best_stations).most_common()
@@ -155,7 +155,7 @@ class FreqGenModel:
             raise ValueError("Model has not been initialized")
 
         tags, tag_embeddings = self.tag_embeddings
-        model = self.get_model("fr")
+        model = self.get_model(self.language)
 
         user_embeddings = model.encode(list(answers.values()))
 
@@ -169,16 +169,73 @@ class FreqGenModel:
         model = self.get_model()
 
         user_embeddings = model.encode(user_input)
-        similarities = model.similarity(user_embeddings, user_embeddings).triu(diagonal=1)
-        
-        first, second, *_ = torch.unravel_index(similarities.argmax(), similarities.shape)
+        similarities = model.similarity(user_embeddings, user_embeddings).triu(
+            diagonal=1
+        )
+
+        first, second, *_ = torch.unravel_index(
+            similarities.argmax(), similarities.shape
+        )
         return [user_input[first], user_input[second]]
 
-    def generate_best_artists(self, answers: dict[str, str]) -> list[str]:
-        return [""]
+    def generate_best_artists(self, station: Station, length: int = 3) -> list[str]:
+        artists = ["DJ Mehdi", "Myd", "Sebastian"]
 
-    def get_best_playlist(self, answers: dict[str, str]) -> dict[str, str]:
-        return {"deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA", "spotify": ""}
+        match station:
+            case Station.slower:
+                artists = ["Folamour", "Polo&Pan"]
+            case Station.slow:
+                artists = [
+                    "DJ Heartstrings",
+                    "Uper90",
+                    "Paramida",
+                    "Asphalt DJ",
+                    "Bliss Inc.",
+                ]
+            case Station.fast:
+                artists = ["Alarico", "Chlär", "Mac Declos"]
+            case Station.faster:
+                artists = ["Shlømo", "999999999", "Rebekah", "Clara Cuvé", "SPFDJ"]
+
+        return sample(artists, length)
+
+    def get_best_playlist(self, station: Station) -> dict[str, str]:
+        playlists = {
+            "deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
+            "spotify": "",
+            "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg?l=en",
+            "youtube": "",
+        }
+        match station:
+            case Station.slower:
+                playlists = {
+                    "deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
+                    "spotify": "",
+                    "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg?l=en",
+                    "youtube": "",
+                }
+            case Station.slow:
+                playlists = {
+                    "deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
+                    "spotify": "",
+                    "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg?l=en",
+                    "youtube": "",
+                }
+            case Station.fast:
+                playlists = {
+                    "deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
+                    "spotify": "",
+                    "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg?l=en",
+                    "youtube": "",
+                }
+            case Station.faster:
+                playlists = {
+                    "deezer": "https://link.deezer.com/s/30iKS8WFIDokwCdWfihFA",
+                    "spotify": "",
+                    "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg?l=en",
+                    "youtube": "",
+                }
+        return playlists
 
 
 def coin_flip():
@@ -186,5 +243,5 @@ def coin_flip():
 
 
 @lru_cache
-def get_model() -> FreqGenModel:
-    return FreqGenModel()
+def get_model(language: str = "fr") -> FreqGenModel:
+    return FreqGenModel(language)

@@ -7,9 +7,10 @@ data_base_path = Path("data")
 
 
 class Settings(BaseSettings):
-    PROMPTS_PATH: str | Path = data_base_path / "prompts.yaml"
+    PROMPTS_PATH: str | Path = data_base_path / "prompts"
     STATION_NAMES_PATH: str | Path = data_base_path / "names"
-    TAGS_PATH: str | Path = data_base_path / "tags.yaml"
+    TAGS_PATH: str | Path = data_base_path / "tags"
+    TERMS_PATH: str | Path = data_base_path / "terms"
 
     CURRENT_DEVICE: str = "mps"
 
