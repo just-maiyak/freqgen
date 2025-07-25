@@ -179,7 +179,6 @@ class FreqGenModel:
         return [user_input[first], user_input[second]]
 
     def generate_best_artists(self, station: Station, length: int = 3) -> list[str]:
-
         artists = ["DJ Mehdi", "Myd", "Sebastian"]
 
         match station:

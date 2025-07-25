@@ -81,5 +81,5 @@ def predict(
         tags=model.generate_best_tags(answers),
         artists=model.generate_best_artists(best_station),
         playlist=PlaylistLinks(**model.get_best_playlist(best_station)),
-        image=""
+        image="",
     )
