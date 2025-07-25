@@ -8,7 +8,7 @@ import numpy.typing as npt
 import torch
 import sentence_transformers as st
 
-from freqgen import config
+from freqgen.config import settings
 from freqgen.data import (
     get_questionnaire,
     get_tags,
@@ -16,8 +16,6 @@ from freqgen.data import (
     get_radio_terms,
     Station,
 )
-
-settings = config.get_settings()
 
 
 class FreqGenModel:

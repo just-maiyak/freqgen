@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from freqgen.model import get_model
+from freqgen.image import generate_image
 
 
 origins = [
@@ -74,12 +75,25 @@ def predict(
         question.question_id: question.answer for question in prompt_answers.answers
     }
 
+    best_station = model.compute_user_station(answers)
+    station_name = " ".join(model.generate_station_name(answers))
+    verbatims = model.get_best_verbatims(answers)
+    tags = model.generate_best_tags(answers)
+    artists = model.generate_best_artists(best_station)
+    image = generate_image(
+        station=best_station,
+        station_name=station_name,
+        verbatims=verbatims,
+        tags=tags,
+        artists=artists,
+    )
+
     return StationInformation(
-        frequency=(best_station := model.compute_user_station(answers)),
-        name=" ".join(model.generate_station_name(answers)),
-        verbatims=model.get_best_verbatims(answers),
-        tags=model.generate_best_tags(answers),
-        artists=model.generate_best_artists(best_station),
+        frequency=best_station,
+        name=station_name,
+        verbatims=verbatims,
+        tags=tags,
+        artists=artists,
         playlist=PlaylistLinks(**model.get_best_playlist(best_station)),
-        image="",
+        image=image,
     )
