@@ -198,42 +198,35 @@ class FreqGenModel:
         return sample(artists, min(length, len(artists)))
 
     def get_best_playlist(self, station: Station) -> dict[str, str]:
-        playlists = {
-            "deezer": "https://link.deezer.com/s/30zcKNfVHeCY1kVap7koa",
-            "spotify": "https://open.spotify.com/playlist/2XiQ26aJA4eOkJAtVmfJzl",
-            "apple": "https://music.apple.com/fr/playlist/uk-garage-hard-house-stationr/pl.u-JPoNFWWZjNq",
-            "youtube": "",
-        }
         match station:
             case Station.slower:
-                playlists = {
+                return {
                     "deezer": "https://link.deezer.com/s/30zcMKTY2yWNartKHdNsz",
                     "spotify": "https://open.spotify.com/playlist/7lQ1MWScSLk8AzB54qM9Bq",
                     "apple": "https://music.apple.com/fr/playlist/baile-funk-disco-nu-house-stationr/pl.u-aZK7FVVMvpW",
-                    "youtube": "",
+                    "youtube": "https://music.youtube.com/playlist?list=PLbKBwhj8Nz7BfGT4EhXFSuphTf1KCFl7M",
                 }
             case Station.slow:
-                playlists = {
+                return {
                     "deezer": "https://link.deezer.com/s/30zcKNfVHeCY1kVap7koa",
                     "spotify": "https://open.spotify.com/playlist/2XiQ26aJA4eOkJAtVmfJzl",
                     "apple": "https://music.apple.com/fr/playlist/uk-garage-hard-house-stationr/pl.u-JPoNFWWZjNq",
-                    "youtube": "",
+                    "youtube": "https://music.youtube.com/playlist?list=PLbKBwhj8Nz7AykQoc8NCDWOqkOUPp9Zs6",
                 }
             case Station.fast:
-                playlists = {
+                return {
                     "deezer": "https://link.deezer.com/s/30yHSUSoWLo9rwTU4qpQs",
                     "spotify": "https://open.spotify.com/playlist/0L4xtzuxTmNMXFn0dDdu79",
                     "apple": "https://music.apple.com/fr/playlist/techno-hypno-mentale/pl.u-76E6uNNXJdg",
-                    "youtube": "",
+                    "youtube": "https://music.youtube.com/playlist?list=PLbKBwhj8Nz7B3VKe2d_faeKF7yyQyt6ni",
                 }
             case Station.faster:
-                playlists = {
+                return {
                     "deezer": "https://link.deezer.com/s/30z33Wn4MDmCfW6Ab4GB3",
                     "spotify": "https://open.spotify.com/playlist/17zBdBpK1PrHEsWhcTYluS",
                     "apple": "https://music.apple.com/fr/playlist/raw-hard-techno/pl.u-11DBHZZEB6M",
-                    "youtube": "",
+                    "youtube": "https://music.youtube.com/playlist?list=PLbKBwhj8Nz7C8OmZcWd2GmSxotSbJi7E_",
                 }
-        return playlists
 
 
 @lru_cache
