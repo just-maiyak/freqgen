@@ -99,7 +99,7 @@ class FreqGenModel:
     # ==========
 
     def generate_station_name(
-        self, answers: dict[str, str], length: int = 1
+        self, answers: dict[str, str], length: int = 1, k_best: int = 10
     ) -> list[str]:
         if self.station_names_embeddings is None or self.radio_terms is None:
             raise ValueError("Model has not been initialized")
@@ -117,7 +117,7 @@ class FreqGenModel:
         best_names = [names[index] for index in best_names_index]
 
         return (
-            [choice(list(self.radio_terms)), *sample(best_names, length)]
+            [choice(list(self.radio_terms)), *sample(best_names[:k_best], length)]
             if self.language == "fr"
             else [*sample(best_names, length), choice(list(self.radio_terms))]
         )
@@ -148,7 +148,9 @@ class FreqGenModel:
 
         return best_station
 
-    def generate_best_tags(self, answers: dict[str, str], limit: int = 5) -> list[str]:
+    def generate_best_tags(
+        self, answers: dict[str, str], limit: int = 5, k_best: int = 10
+    ) -> list[str]:
         if self.tag_embeddings is None:
             raise ValueError("Model has not been initialized")
 
@@ -160,7 +162,10 @@ class FreqGenModel:
         maxes, _ = model.similarity(user_embeddings, tag_embeddings).max(dim=0)
         tag_similarities = zip(tags, maxes.tolist())
 
-        return [tag for tag, _ in sorted(tag_similarities, key=itemgetter(1))][:limit]
+        return sample(
+            [tag for tag, _ in sorted(tag_similarities, key=itemgetter(1))][:k_best],
+            limit,
+        )
 
     def get_best_verbatims(self, answers: dict[str, str]) -> list[str]:
         user_input = list(answers.values())
