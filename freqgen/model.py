@@ -186,7 +186,22 @@ class FreqGenModel:
 
         match station:
             case Station.slower:
-                artists = ["Folamour", "Polo&Pan", "Peggy Gou"]
+                artists = [
+                    "Peggy Gou",
+                    "LF SYSTEM",
+                    "Iglesias",
+                    "Pagano",
+                    "Ben Miller",
+                    "Trace",
+                    "Deetron",
+                    "Mira Lò",
+                    "Demuir",
+                    "Discip",
+                    "Kolter",
+                    "US Two",
+                    "Deetron",
+                    "Makez",
+                ]
             case Station.slow:
                 artists = [
                     "DJ Heartstrings",
@@ -194,11 +209,53 @@ class FreqGenModel:
                     "Paramida",
                     "Asphalt DJ",
                     "Bliss Inc.",
+                    "Marlon Hoffstadt",
+                    "Narciss",
+                    "Bad Boombox",
+                    "Partiboi69",
+                    "GrandV",
+                    "Vitess",
+                    "Mara",
+                    "Morelia",
                 ]
             case Station.fast:
-                artists = ["Alarico", "Chlär", "Mac Declos"]
+                artists = [
+                    "Alarico",
+                    "Chlär",
+                    "Mac Declos",
+                    "Bours?",
+                    "Anfisa Letyago",
+                    "Anetha",
+                    "UFO95",
+                    "LDS",
+                    "David Lölhein",
+                    "Lacchesi",
+                    "Part Time Killer",
+                    "Blame The Mono",
+                    "Lars Huismann",
+                    "Hyden",
+                    "Anne",
+                    "D.Dan",
+                    "Yan Cook",
+                ]
             case Station.faster:
-                artists = ["Shlømo", "999999999", "Rebekah", "Clara Cuvé", "SPFDJ"]
+                artists = [
+                    "Shlømo",
+                    "999999999",
+                    "Rebekah",
+                    "Clara Cuvé",
+                    "SPFDJ",
+                    "I Hate Models",
+                    "Sara Landry",
+                    "Amazingblaze",
+                    "Airod",
+                    "Jacidorex",
+                    "TØLR",
+                    "Cassie Raptor",
+                    "VCL",
+                    "Diazepin",
+                    "Ygnor",
+                ]
 
         return sample(artists, min(length, len(artists)))
 
