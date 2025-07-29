@@ -1,0 +1,8 @@
+services:
+  freqgen:
+    build: 
+      context: .
+      platforms: [linux]
+    restart: unless-stopped
+    ports:
+      - 5000:8080
