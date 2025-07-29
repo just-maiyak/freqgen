@@ -1,4 +1,5 @@
 from enum import StrEnum
+import random
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -77,7 +78,7 @@ def predict(
     }
 
     best_station = model.compute_user_station(answers)
-    station_name = " ".join(model.generate_station_name(answers))
+    station_name = " ".join(model.generate_station_name(answers, length=random.randint(1, 3)))
     verbatims = model.get_best_verbatims(answers)
     tags = model.generate_best_tags(answers)
     artists = model.generate_best_artists(best_station)
