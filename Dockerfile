@@ -1,7 +1,6 @@
 from ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 add . /freqgen
-copy dotenv/prod.env /freqgen/.env
 
 workdir /freqgen
 run mkdir -p analytics

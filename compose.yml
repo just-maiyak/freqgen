@@ -6,3 +6,7 @@ services:
     restart: unless-stopped
     ports:
       - 5000:8080
+    volumes:
+      - ./.env:/freqgen/.env
+      - ./data:/freqgen/data
+      - ./analytics:/freqgen/analytics
