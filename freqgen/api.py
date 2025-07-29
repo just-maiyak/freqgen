@@ -7,10 +7,13 @@ from pydantic import BaseModel
 from freqgen.model import get_model
 from freqgen.image import generate_image
 
+from freqgen.analytics import log_analytics
+
 
 origins = [
     "http://localhost",
     "http://localhost:1234",
+    "http://127.0.0.1:1234",
     "https://just-maiyak.github.io",
     "https://station-r.club",
     "http://station-r.club",
@@ -88,7 +91,13 @@ def predict(
         tags=tags,
         artists=artists,
     )
-
+    log_analytics(
+        request,
+        best_station=str(best_station),
+        station_name=station_name,
+        verbatims=verbatims,
+        tags=tags,
+        artists=artists)
     return StationInformation(
         frequency=best_station,
         name=station_name,

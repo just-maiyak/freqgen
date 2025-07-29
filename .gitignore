@@ -12,3 +12,6 @@ wheels/
 
 # Notebooks
 notebooks
+
+# SQLite database
+*.sqlite
