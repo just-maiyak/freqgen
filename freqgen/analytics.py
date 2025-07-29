@@ -24,7 +24,6 @@ def check_and_create_db(db_location: str = db_location) -> Connection:
         create_query: str = """CREATE TABLE analytics (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            ip_address TEXT,
             user_agent TEXT,
             method TEXT,
             path TEXT,
@@ -63,11 +62,10 @@ def log_analytics(
     cursor = connection.cursor()
 
     insert_query = """INSERT INTO analytics 
-        (ip_address, user_agent, method, path, best_station, station_name, verbatims, tags, artists) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"""
+        (user_agent, method, path, best_station, station_name, verbatims, tags, artists) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);"""
 
     data: tuple = (
-        request.client.host if request.client else None,
         request.headers.get("user-agent"),
         request.method,
         str(request.url.path),
@@ -84,24 +82,17 @@ def log_analytics(
     connection.close()
 
 
-def get_all_analytics(db_location: str = db_location) -> list[dict]:
+def get_count_questionnaires(db_location: str = db_location) -> int:
     """Retrieves all analytics data from the SQLite database.
     Arguments:
         db_location: The location of the SQLite database file.
     Returns:
-        list[dict]: A list of dictionaries containing all analytics records.
+        int: Count of all completed 
     """
     connection = check_and_create_db(db_location)
     cursor = connection.cursor()
-
-    select_query = """SELECT * FROM analytics ORDER BY timestamp DESC;"""
+    select_query = """SELECT COUNT(*) FROM analytics ORDER BY timestamp DESC;"""
     cursor.execute(select_query)
-
-    columns = [description[0] for description in cursor.description]
-
     rows = cursor.fetchall()
-    analytics_data = [dict(zip(columns, row)) for row in rows]
-
     connection.close()
-
-    return analytics_data
+    return rows[0][0] if rows else 0
