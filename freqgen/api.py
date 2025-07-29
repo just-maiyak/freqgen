@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from freqgen.model import get_model
 from freqgen.image import generate_image
 
-from freqgen.analytics import log_analytics
+from freqgen.analytics import log_analytics, get_all_analytics
 
 
 origins = [
@@ -108,3 +108,9 @@ def predict(
         playlist=PlaylistLinks(**model.get_best_playlist(best_station)),
         image=image,
     )
+
+
+@app.get("/analytics/all")
+def get_analytics():
+    return get_all_analytics()
+

@@ -1,28 +1,27 @@
 from sqlite3 import Connection, connect
 from fastapi import Request
 
-db_location:str = "db/freq_analytics.sqlite"
+db_location: str = "db/freq_analytics.sqlite"
 
-def check_and_create_db(
-    db_location:str =db_location
-) -> Connection:
+
+def check_and_create_db(db_location: str = db_location) -> Connection:
     """Checks if the database exists. If the database does not exist, it will be created.
     Arguments:
         db_location: The location of the SQLite database file.
     Returns:
         sqlite3.Connection: A connection object for the SQLite database.
     """
-    
+
     connection = connect(db_location)
     cursor = connection.cursor()
-    
-    check_query:str = """ SELECT name 
+
+    check_query: str = """ SELECT name 
             FROM sqlite_master 
             WHERE type='table' 
             AND name='analytics';"""
-            
+
     if cursor.execute(check_query).fetchone() is None:
-        create_query:str = """CREATE TABLE analytics (
+        create_query: str = """CREATE TABLE analytics (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
             ip_address TEXT,
@@ -37,8 +36,9 @@ def check_and_create_db(
         );"""
         cursor.execute(create_query)
         connection.commit()
-    
+
     return connection
+
 
 def log_analytics(
     request: Request,
@@ -47,7 +47,7 @@ def log_analytics(
     verbatims: list[str],
     tags: list[str],
     artists: list[str],
-    db_location:str = db_location
+    db_location: str = db_location,
 ) -> None:
     """Logs analytics data to the SQLite database.
     Arguments:
@@ -61,12 +61,12 @@ def log_analytics(
     """
     connection = check_and_create_db(db_location)
     cursor = connection.cursor()
-    
+
     insert_query = """INSERT INTO analytics 
         (ip_address, user_agent, method, path, best_station, station_name, verbatims, tags, artists) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"""
-        
-    data:tuple = (
+
+    data: tuple = (
         request.client.host if request.client else None,
         request.headers.get("user-agent"),
         request.method,
@@ -75,10 +75,33 @@ def log_analytics(
         station_name,
         ",".join(verbatims),
         ",".join(tags),
-        ",".join(artists)
+        ",".join(artists),
     )
-    
+
     cursor.execute(insert_query, data)
-    
+
     connection.commit()
     connection.close()
+
+
+def get_all_analytics(db_location: str = db_location) -> list[dict]:
+    """Retrieves all analytics data from the SQLite database.
+    Arguments:
+        db_location: The location of the SQLite database file.
+    Returns:
+        list[dict]: A list of dictionaries containing all analytics records.
+    """
+    connection = check_and_create_db(db_location)
+    cursor = connection.cursor()
+
+    select_query = """SELECT * FROM analytics ORDER BY timestamp DESC;"""
+    cursor.execute(select_query)
+
+    columns = [description[0] for description in cursor.description]
+
+    rows = cursor.fetchall()
+    analytics_data = [dict(zip(columns, row)) for row in rows]
+
+    connection.close()
+
+    return analytics_data
