@@ -114,5 +114,6 @@ class Analytics(BaseModel):
 
 @app.get("/analytics/all")
 def get_analytics() -> Analytics:
-    count = get_count_questionnaires()
-    return Analytics(questionnaire_completed=count)
+    return Analytics(
+        questionnaire_completed=get_count_questionnaires()
+    )
