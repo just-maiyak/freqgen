@@ -1,10 +1,14 @@
+from pathlib import Path
 from sqlite3 import Connection, connect
+
 from fastapi import Request
 
-db_location: str = "db/freq_analytics.sqlite"
+from freqgen.config import settings
+
+db_location: Path = settings.ANALYTICS_DB_LOCATION
 
 
-def check_and_create_db(db_location: str = db_location) -> Connection:
+def check_and_create_db(db_location: str | Path = db_location) -> Connection:
     """Checks if the database exists. If the database does not exist, it will be created.
     Arguments:
         db_location: The location of the SQLite database file.
@@ -46,7 +50,7 @@ def log_analytics(
     verbatims: list[str],
     tags: list[str],
     artists: list[str],
-    db_location: str = db_location,
+    db_location: str | Path = db_location,
 ) -> None:
     """Logs analytics data to the SQLite database.
     Arguments:
@@ -82,12 +86,12 @@ def log_analytics(
     connection.close()
 
 
-def get_count_questionnaires(db_location: str = db_location) -> int:
+def get_count_questionnaires(db_location: str | Path = db_location) -> int:
     """Retrieves all analytics data from the SQLite database.
     Arguments:
         db_location: The location of the SQLite database file.
     Returns:
-        int: Count of all completed 
+        int: Count of all completed
     """
     connection = check_and_create_db(db_location)
     cursor = connection.cursor()

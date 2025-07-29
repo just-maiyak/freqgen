@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from enum import StrEnum
 import random
 
@@ -5,10 +6,14 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from freqgen.analytics import (
+    check_and_create_db,
+    log_analytics,
+    get_count_questionnaires,
+)
+from freqgen.config import settings
 from freqgen.model import get_model
 from freqgen.image import generate_image
-
-from freqgen.analytics import log_analytics, get_count_questionnaires
 
 
 origins = [
@@ -21,7 +26,14 @@ origins = [
     "https://freqscan.yefimch.uk",
 ]
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    _ = check_and_create_db(settings.ANALYTICS_DB_LOCATION)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -81,7 +93,9 @@ def predict(
     }
 
     best_station = model.compute_user_station(answers)
-    station_name = " ".join(model.generate_station_name(answers, length=random.randint(1, 3)))
+    station_name = " ".join(
+        model.generate_station_name(answers, length=random.randint(1, 3))
+    )
     verbatims = model.get_best_verbatims(answers)
     tags = model.generate_best_tags(answers)
     artists = model.generate_best_artists(best_station)
@@ -98,7 +112,8 @@ def predict(
         station_name=station_name,
         verbatims=verbatims,
         tags=tags,
-        artists=artists)
+        artists=artists,
+    )
     return StationInformation(
         frequency=best_station,
         name=station_name,
@@ -109,11 +124,11 @@ def predict(
         image=image,
     )
 
+
 class Analytics(BaseModel):
     questionnaire_completed: int
 
+
 @app.get("/analytics/all")
 def get_analytics() -> Analytics:
-    return Analytics(
-        questionnaire_completed=get_count_questionnaires()
-    )
+    return Analytics(questionnaire_completed=get_count_questionnaires())

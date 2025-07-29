@@ -4,6 +4,7 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 data_base_path = Path("data")
+analytics_db = Path("analytics")
 assets_base_path = Path("assets")
 
 
@@ -13,6 +14,8 @@ class Settings(BaseSettings):
     TAGS_PATH: str | Path = data_base_path / "tags"
     TERMS_PATH: str | Path = data_base_path / "terms"
     ASSETS_PATH: str | Path = assets_base_path
+
+    ANALYTICS_DB_LOCATION: str | Path = analytics_db / "analytics.sqlite"
 
     CURRENT_DEVICE: str = "mps"
 

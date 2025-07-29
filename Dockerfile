@@ -4,6 +4,7 @@ add . /freqgen
 copy dotenv/prod.env /freqgen/.env
 
 workdir /freqgen
+run mkdir -p analytics
 
 run uv sync --frozen --no-cache
 
